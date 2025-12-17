@@ -52,6 +52,9 @@ for i in $(seq 1 $NUM_BRANCHES); do
     git add "$TEST_FILE"
     git commit -m "feat: add feature $i for $STACK_NAME"
     
+    # Small delay to prevent index.lock race conditions
+    sleep 0.2
+    
     echo "✅ Created and committed: $BRANCH_NAME"
     
     # The next branch will be based on this one (that's what makes it a stack!)
