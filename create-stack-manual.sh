@@ -92,7 +92,6 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         echo "🔗 Creating PRs..."
         PR_URLS=()
-        PR_NUMBERS=()
         
         for i in "${!BRANCH_NAMES[@]}"; do
             branch="${BRANCH_NAMES[$i]}"
@@ -105,49 +104,19 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
             
             echo "   Creating PR for $branch (base: $base)..."
             
-            # Build dependency text
-            if [ $i -eq 0 ]; then
-                dep_text="- Base: \`$BASE_BRANCH\` (no dependencies)"
-            else
-                prev_pr_num="${PR_NUMBERS[$((i-1))]}"
-                dep_text="- Depends on: #${prev_pr_num} (\`${BRANCH_NAMES[$((i-1))]}\`)
-- **Merge PRs in order from bottom to top of stack**"
-            fi
-            
-            # Create PR with gh CLI
+            # Create PR with gh CLI (no description)
             pr_url=$(gh pr create \
                 --base "$base" \
                 --head "$branch" \
                 --title "feat: add feature $((i+1)) for $STACK_NAME" \
-                --body "## Part $((i+1)) of $NUM_BRANCHES in stack \`$STACK_NAME\`
-
-This PR adds feature $((i+1)).
-
-### Stack Structure
-\`\`\`
-$BASE_BRANCH
-$(for j in $(seq 0 $i); do
-    indent=$(printf '  %.0s' $(seq 0 $j))
-    marker=""
-    if [ $j -eq $i ]; then marker=" ← this PR"; fi
-    echo "${indent}└── ${BRANCH_NAMES[$j]}${marker}"
-done)
-\`\`\`
-
-### Dependencies
-${dep_text}
-" 2>&1)
+                --body "" 2>&1)
             
             if [ $? -eq 0 ]; then
                 PR_URLS+=("$pr_url")
-                # Extract PR number from URL (e.g., https://github.com/.../pull/31 -> 31)
-                pr_number=$(echo "$pr_url" | grep -oE '[0-9]+$')
-                PR_NUMBERS+=("$pr_number")
                 echo "   ✅ Created: $pr_url"
             else
                 echo "   ❌ Failed to create PR for $branch"
                 echo "      $pr_url"
-                PR_NUMBERS+=("")  # Add empty placeholder to keep array indices aligned
             fi
         done
         
