@@ -29,3 +29,7 @@ Created at: Thu Dec 18 09:35:07 EST 2025
 ## Feature 7
 - Added in branch 7
 - Timestamp: 09:35:10
+
+## Feature 8
+- Added in branch 8
+- Timestamp: 09:35:10
